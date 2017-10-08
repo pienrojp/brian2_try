@@ -8,24 +8,33 @@ Created on Sun Oct  8 14:18:32 2017
 
 from brian2 import *
 
-n=3 #1000 neurons
-duration = 1*second #simulation 
-tau = 10*ms #time constant
-#leaky LF without current
+start_scope()
+duration=50*ms
+tau = 10*ms
+#eqs
 eqs = '''
-dv/dt = (v0-v)/tau :volt (unless refractory)
-v0:volt 
+dv/dt= (v0-v)/tau : 1 (unless refractory)
+v0 : 1
 '''
-#neuron
-group = NeuronGroup(n,eqs,threshold='v>10*mV',reset='v=0*mV', refractory=5*ms,method='linear')
-group.v = 0*mV
-group.v0 = '20*mV* i /(n-1)'
 
-M = StateMonitor(group,'v',record=True)
-monitor = SpikeMonitor(group)
+#single neuron
+g = NeuronGroup(100, eqs,threshold='v>2',reset='v=0',refractory=5*ms,method='linear')
+g.v0='1*i/(n-1)'
+#monitor
+M = StateMonitor(g,'v',record=0)
+S = SpikeMonitor(g)
 
+
+
+
+#run
 run(duration)
-plot(group.v0/mV, monitor.count / duration)
-xlabel('v0 (mV)')
-ylabel('Firing rate (sp/s)')
-show()
+plot(g.v0,S.count/duration)
+
+
+
+
+#plot(M.t/ms, M.v[0])
+#xlabel('Time (ms)')
+#ylabel('v');
+#show() 
